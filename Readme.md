@@ -7,6 +7,7 @@ python generatePointsPolygon.py 1400 1400 10 100
 ```
 
 ### `genplot.jl`
+Contains functions to run the simulation, and generate time series plots.
 
 
 

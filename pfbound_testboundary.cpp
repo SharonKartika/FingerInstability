@@ -324,11 +324,6 @@ CELL **findBorderCellsByEdgeScan(CELL M[], float rt)
             *(nscores + i) = angleAC(&rl, &(rc->p), &(*(rnsnb + i))->p);
             if (*(nscores + i) >= PI)
                 (*(nscores + i) = 0.);
-            // cout(&rl);
-            // cout(&(rc->p));
-            // cout(&(*(rnsnb + i))->p);
-            // std::cout << std::endl;
-            // std::cout << *(nscores + i) << std::endl;
         }
         // debug segfault
         std::cout << len(rns) << "\t" << len(rnsnb) << "\t" << len(boundcells) << std::endl;

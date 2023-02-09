@@ -26,7 +26,7 @@ end
 
 function simulateAndPlot(;N=200, n=100, W=1200, H=1200)
 	t1 = @elapsed run(`g++ pfbound.cpp -o pf`);
-	t2 = @elapsed run(`./pfbound $(N) $(n)`)
+	t2 = @elapsed run(`./pfbound_testboundary $(N) $(n)`)
 	println("Time taken to simulate: $(t1+t2) seconds\n");
 	t3 = @elapsed plt = generateAnimation(W, H)
 	println("Time taken to plot: $(t3) seconds\n");
@@ -38,7 +38,7 @@ function plotFirstFrame(W=1200, H=1200)
 	x, y = data[1, 1:2:end], data[1, 2:2:end]
 	plot(x, y, legend=:none, color=:blue,
 		 seriestype=:scatter,
-		 xlims=[-W/2,W/2], ylims=[-H/2,H/2]) 
+		 xlims=[-W,W], ylims=[-H,H]) 
 end
 
 
