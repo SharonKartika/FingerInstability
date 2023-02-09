@@ -613,7 +613,7 @@ int main(int argc, char *argv[])
     }
 
     std::ofstream posfile;
-    posfile.open("intermediateResults/positiondataforboundarytest.csv");
+    posfile.open("intermediateResults/positionData.csv");
     //
     // std::ofstream boundposfile;
     // boundposfile.open("intermediateResults/boundarydataforboundarytest.csv");

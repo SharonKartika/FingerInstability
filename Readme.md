@@ -6,6 +6,15 @@ Python script that samples points inside a random polygon. Dependencies in `envi
 python generatePointsPolygon.py 1400 1400 10 100
 ```
 
+### `genplot.jl`
+
+
+
+### Header files
+`CELL.h`
+`VEC2.h`
+`constants.h`
+`utilityFunctions.h`
 
 
 ## Folders
