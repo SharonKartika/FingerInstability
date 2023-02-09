@@ -26,10 +26,10 @@ Script to use and test different boundary detection methods.
 6. `vecCellUtilities.h`
 
 ## Folders
-`intermediateResults`: stores data files that are linked between languages. 
-`results`: stores the final simulation plots
-`modulesCpp`: stores all the c++ modules.  
+1. `intermediateResults`: stores data files that are linked between languages. 
+2. `results`: stores the final simulation plots
+3. `modulesCpp`: stores all the c++ modules.  
 
 ## Files
-`environment.yaml`: Python dependency files.
-`Manifest.toml`, `Project.toml`: Julia dependency files.
+1. `environment.yaml`: Python dependency files.
+2. `Manifest.toml`, `Project.toml`: Julia dependency files.
