@@ -165,8 +165,7 @@ int main(int argc, char *argv[])
     nt = std::stoi(argv[2]);
     w2 = W / 2;
     h2 = H / 2;
-    int bchoice = std::stoi(argv[3]);
-    rt = std::stof(argv[4]);
+    rt = std::stof(argv[3]);
 
     std::fstream pointinshape;
     pointinshape.open("intermediateResults/pointsInPolygon.csv", std::ios_base::in);
@@ -182,16 +181,16 @@ int main(int argc, char *argv[])
     std::ofstream posfile;
     posfile.open("intermediateResults/positionData.csv");
 
-    std::ofstream boundposfile;
-    boundposfile.open("intermediateResults/boundaryData.csv");
-    CELL **B;
+    // std::ofstream boundposfile;
+    // boundposfile.open("intermediateResults/boundaryData.csv");
+    // CELL **B;
 
     for (int t = 0; t < nt; t++)
     {
         looploop(M);
         writecoordinates(M, posfile);
-        B = findBorderCellsByEdgeScan(M, 200);
-        writecoordinates(B, boundposfile);
+        // B = findBorderCellsByEdgeScan(M, 200);
+        // writecoordinates(B, boundposfile);
     }
 
     std::cout << "simulation complete\n";
