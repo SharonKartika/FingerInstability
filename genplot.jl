@@ -25,8 +25,8 @@ function generateAnimation(W, H)
 end
 
 function simulateAndPlot(;N=200, n=100, W=1200, H=1200)
-	t1 = @elapsed run(`g++ pfbound.cpp -o pf`);
-	t2 = @elapsed run(`./pfbound_testboundary $(N) $(n)`)
+	t1 = @elapsed run(`g++ main.cpp -o pf`);
+	t2 = @elapsed run(`./main $(N) $(n)`)
 	println("Time taken to simulate: $(t1+t2) seconds\n");
 	t3 = @elapsed plt = generateAnimation(W, H)
 	println("Time taken to plot: $(t3) seconds\n");

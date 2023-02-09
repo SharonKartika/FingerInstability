@@ -83,8 +83,8 @@ def main():
 
     x, y = generatePointsWithinPolygon(generateReasonablePolygon(npoints), nsample)
     x, y = np.array(x), np.array(y)
-    x = convertrangefast(x, 0, 1, -W, W)
-    y = convertrangefast(y, 0, 1, -H, H)
+    x = convertrangefast(x, 0, 1, -W/2, W/2)
+    y = convertrangefast(y, 0, 1, -H/2, H/2)
     
     X = np.array([x, y]).T
     np.savetxt("intermediateResults/pointsInPolygon.csv", X, delimiter=" ")

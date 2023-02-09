@@ -18,7 +18,7 @@ Todo: combine the different forces into a single loop
 */
 
 int N{100}; // #agents
-int n{500}; // #time steps
+int nt{500}; // #time steps
 // constexpr float rt{400.}; // threshold distance
 float rt{400.};
 float w2{100}, h2;
@@ -28,7 +28,7 @@ float map(float, float, float, float, float);
 float Hv(float);
 float noisemag(float);
 
-void writeposition(CELL M[], std::ofstream &file)
+void writecoordinates(CELL M[], std::ofstream &file)
 { /*
   Writes the coordinates of all the cells to file
   */
@@ -157,7 +157,7 @@ VEC2 mean(CELL M[])
     return m / N;
 }
 
-VEC2 mean2(CELL **M)
+VEC2 mean(CELL **M)
 {
     VEC2 m(0, 0);
     CELL **p = M;
@@ -283,7 +283,7 @@ int len(CELL **A)
     return i;
 }
 
-void writeboundarycells(CELL **B, std::ofstream &file)
+void writecoordinates(CELL **B, std::ofstream &file)
 {
     int nb = len(B);
     for (int i = 0; i < nb - 1; i++)
@@ -315,7 +315,7 @@ CELL **findBorderCellsByEdgeScan(CELL M[], float rt)
     while (true)
     {
         CELL **rns = getneighbors(M, rc, rt);
-        VEC2 rl = mean2(rns);
+        VEC2 rl = mean(rns);
         CELL **rnsnb = setdiff(rns, boundcells);
         int lenrnsnb = len(rnsnb);
         float *nscores = (float *)malloc(lenrnsnb * sizeof(*nscores));
@@ -375,11 +375,6 @@ int *getQuadrantCount(CELL **NC, CELL *C)
             std::cout << "Some kind of error" << std::endl;
         NC++;
     }
-    // for (int i = 0; i < 4; i++)
-    // {
-    // std::cout << "QV: " << qc[i] << "\t";
-    // }
-    // std::cout << std::endl;
     return qc;
 }
 
@@ -590,7 +585,7 @@ CELL **findBorderCellsByVecSum(CELL M[], float rt, float trmag)
 int main(int argc, char *argv[])
 {
     N = std::stoi(argv[1]);
-    n = std::stoi(argv[2]);
+    nt = std::stoi(argv[2]);
     w2 = W / 2;
     h2 = H / 2;
     int bchoice = std::stoi(argv[3]);
@@ -611,7 +606,7 @@ int main(int argc, char *argv[])
     posfile.open("intermediateResults/positionData.csv");
     //
     // std::ofstream boundposfile;
-    // boundposfile.open("intermediateResults/boundarydataforboundarytest.csv");
+    // boundposfile.open("intermediateResults/boundaryData.csv");
     // CELL **B;
     //
     // if        (bchoice == 1){
@@ -628,15 +623,15 @@ int main(int argc, char *argv[])
     // std::cout<<"\nINVALID INPUT"<<std::endl;
     // }
     //
-    // writeboundarycells(B, boundposfile);
+    // writecoordinates(B, boundposfile);
     // std::cout<<"Length of boundary: "<<len(B)<<std::endl;
     //
 
     // B = findBorderCellsByDiff(M, 300, 2.);
     // B = findBorderCellsByVecSum(M, rt);
     // std::cout << "LENB: " << len(B) << std::endl;
-    // writeboundarycells(B, boundposfile);
-    // writeposition(M, posfile);
+    // writecoordinates(B, boundposfile);
+    // writecoordinates(M, posfile);
 
     // float delta = 0.1;
     // float a = PI - delta;
@@ -651,12 +646,12 @@ int main(int argc, char *argv[])
     // float q[3] = {-PI + delta, delta, PI - delta};
     // sort(q, 3);
     // findLargestGap(q, 3);
-    for (int t = 0; t < n; t++)
+    for (int t = 0; t < nt; t++)
     {
         looploop(M);
-        writeposition(M, posfile);
+        writecoordinates(M, posfile);
         // B = findBorderCells(M, 200);
-        // writeboundarycells(B, boundposfile);
+        // writecoordinates(B, boundposfile);
     }
     std::cout << "simulation complete\n";
 }
