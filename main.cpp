@@ -46,7 +46,7 @@ VEC2 mean(CELL **M);
 VEC2 mean(CELL M[]);
 
 CELL **getcellarray(int N);
-CELL **getneighbors(CELL M[], CELL *cell, float rt);
+CELL **getNeighbors(CELL M[], CELL *cell, float rt);
 CELL **setdiff(CELL **A, CELL **B);
 
 float fInteractionMag(float r)
@@ -87,20 +87,25 @@ VEC2 getInteractionForce(CELL A, CELL B)
     return F;
 }
 
+VEC2 getInteractionForce(CELL A, CELL **B)
+{
+    VEC2 FIi(0.0, 0.0); // interaction force on i
+    while (*B)
+    {
+        FIi += getInteractionForce(A, **B);
+        B++;
+    }
+    return FIi;
+}
+
 /*Loops through every cell and again through every cell  */
 void looploop(CELL M[])
 {
-    VEC2 FIi(0.0, 0.0); // interaction force on i
     for (int i = 0; i < N; i++)
     {
-        FIi = VEC2(0, 0);
-        for (int j = 0; j < N; j++)
-        {
-            if (i != j)
-            {
-                FIi += getInteractionForce(M[i], M[j]);
-            }
-        }
+        CELL **B = getNeighbors(M, &M[i], rt);
+        VEC2 FIi = getInteractionForce(M[i], B);
+        M[i].a = FIi;
     }
     // interaction
     // for (int i = 0; i < N; i++)
@@ -176,7 +181,6 @@ void looploop(CELL M[])
 
     for (int i = 0; i < N; i++)
     {
-        M[i].a += FIi;
         M[i].update();
     }
 }

@@ -85,7 +85,7 @@ float dist(CELL a, CELL b)
 }
 
 
-CELL **getneighbors(CELL M[], CELL *cell, float rt)
+CELL **getNeighbors(CELL M[], CELL *cell, float rt)
 {
     CELL **rns = getcellarray(N);
 

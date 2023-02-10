@@ -238,7 +238,7 @@ CELL **setdiff(CELL **A, CELL **B)
     return p;
 }
 
-CELL **getneighbors(CELL M[], CELL *cell, float rt)
+CELL **getNeighbors(CELL M[], CELL *cell, float rt)
 {
     // CELL **rns = getcellarray(N / 5);
     CELL **rns = getcellarray(N);
@@ -314,7 +314,7 @@ CELL **findBorderCellsByEdgeScan(CELL M[], float rt)
     CELL **boundcells = getcellarray(N);
     while (true)
     {
-        CELL **rns = getneighbors(M, rc, rt);
+        CELL **rns = getNeighbors(M, rc, rt);
         VEC2 rl = mean(rns);
         CELL **rnsnb = setdiff(rns, boundcells);
         int lenrnsnb = len(rnsnb);
@@ -503,7 +503,7 @@ CELL **findBorderCellsByLevine(CELL M[], float rt)
     CELL **p = boundcells;
     for (int i = 0; i < N; i++)
     {
-        CELL **rns = getneighbors(M, &M[i], rt);
+        CELL **rns = getNeighbors(M, &M[i], rt);
         int *qc = getQuadrantCount(rns, &M[i]);
         if (isOnBoundary(qc))
         {
@@ -521,7 +521,7 @@ CELL **findBorderCellsByQuadrantEmpty(CELL M[], float rt)
     CELL **p = boundcells;
     for (int i = 0; i < N; i++)
     {
-        CELL **rns = getneighbors(M, &M[i], rt);
+        CELL **rns = getNeighbors(M, &M[i], rt);
         int *qc = getQuadrantCount(rns, &M[i]);
         if (isQuadrantEmpty(qc))
         {
@@ -539,7 +539,7 @@ CELL **findBorderCellsByFOV(CELL M[], float rt, float f)
     CELL **p = boundcells;
     for (int i = 0; i < N; i++)
     {
-        CELL **rns = getneighbors(M, &M[i], rt);
+        CELL **rns = getNeighbors(M, &M[i], rt);
         // int *qc = getQuadrantCount(rns, &M[i]);
         // if (isOnBoundary(qc))
         // if (isQuadrantEmpty(qc))
@@ -560,7 +560,7 @@ CELL **findBorderCellsByVecSum(CELL M[], float rt, float trmag)
     for (int i = 0; i < N; i++)
     {
         VEC2 vecsum = VEC2(0, 0);
-        CELL **rns = getneighbors(M, &M[i], rt);
+        CELL **rns = getNeighbors(M, &M[i], rt);
         CELL **t = rns;
         while (*t)
         {
