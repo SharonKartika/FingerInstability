@@ -2,6 +2,7 @@
 #include <bits/stdc++.h>
 #include <cmath>
 #include <fstream>
+#include <limits>
 
 #include "modulesCpp/utilityFunctions.h"
 #include "modulesCpp/VEC2.h"
@@ -46,7 +47,7 @@ double angleAC(VEC2 *rl, VEC2 *rc, VEC2 *rn);
 VEC2 mean(CELL **M);
 VEC2 mean(CELL M[]);
 
-CELL **getcellarray(int N);
+CELL **getCellPointerArray(int N);
 CELL **getNeighbors(CELL M[], CELL *cell, double rt);
 CELL **setdiff(CELL **A, CELL **B);
 
@@ -106,8 +107,86 @@ VEC2 getNoiseForce(CELL &A, CELL **B)
     return A.eta * sig;
 }
 
+int argmin(double q[], int n)
+{
+    int key = 0;
+    for (int i = 1; i < n; i++)
+        if (q[i] < q[key])
+            key = i;
+    return key;
+}
+
+void swap(auto &a, auto &b)
+{
+    auto t = a;
+    a = b;
+    b = t;
+}
+
+int *argkmin(double q[], int n, int k)
+{
+    int *kq = (int *)malloc(sizeof(int) * k);
+    for (int i = 0; i < k; i++)
+    {
+        int j = argmin(q + i, n - i);
+        swap(q[i], q[j]);
+        kq[i] = j;
+    }
+    return kq;
+}
+
+CELL **kClosest(CELL *T, CELL **B, int k)
+{
+    CELL **KN = getCellPointerArray(k);
+    int n = len(B);
+    double *dists = (double *)malloc(sizeof(double) * len(B));
+    for (int i = 0; i < n; i++)
+    {
+        dists[i] = ((*(B + i))->p - T->p).mag();
+        if (*(B + i) == T) // if equal, set infinite distance
+            dists[i] = std::numeric_limits<double>::max();
+    }
+    int *km = argkmin(dists, n, k);
+    for (int i = 0; i < k; i++)
+    {
+        *(KN + i) = *(B + km[i]);
+    }
+    return KN;
+}
+
+VEC2 getGravityForce(CELL *A, CELL *B)
+{
+    VEC2 dp = (A->p - B->p);
+    double r = dp.mag();
+    double fmag = 1 / (r * r);
+    VEC2 FAc = VEC2(fmag * dp.x / r,
+                    fmag * dp.y / r);
+    return FAc;
+}
+// calculate force on T due to A and B
+VEC2 getActinForce(CELL *T, CELL *A, CELL *B)
+{
+    // VEC2 FAc = getInteractionForce(*T, *A) +
+    //            getInteractionForce(*T, *B);
+    // return FAc * 10;
+    VEC2 FAc = getGravityForce(T, A) + getGravityForce(T, B);
+    const double scale = 1E6;
+    // std::cout << FAc.x << " " << FAc.y << std::endl;
+    // exit(0);
+    return FAc * scale;
+}
+
+VEC2 getActinForce(CELL *T, CELL **B)
+{
+    CELL **KN = kClosest(T, B, 2);
+    VEC2 FAc = getActinForce(T, *(KN + 0), *(KN + 1));
+    return FAc;
+}
+
 /*Loops through every cell and again through every cell  */
-void looploop(CELL M[])
+void looploop(CELL M[],
+              std::ofstream &posfile,
+              std::ofstream &boundposfile)
 {
     for (int i = 0; i < N; i++)
     {
@@ -118,10 +197,22 @@ void looploop(CELL M[])
         FVc = getVicsekForce(M[i], B);
         FNo = getNoiseForce(M[i], B);
 
-        M[i].a = FIn +
-                 FVc * beta +
-                 FNo;
+        M[i].a = VEC2(0, 0);
+        //  FIn +
+        //  FVc * beta +
+        //  FNo;
     }
+    CELL **B = findBorderCellsByFOV(M, 400, 3 * PI / 4);
+    for (int i = 0; i < len(B); i++)
+    {
+        VEC2 FAc; // F actin
+        FAc = getActinForce(*B, B);
+        (*(B + i))->a += FAc;
+    }
+    writecoordinates(M, posfile);
+    writecoordinates(B, boundposfile);
+    // boundposfile.close();
+    // exit(1);
     for (int i = 0; i < N; i++)
     {
         M[i].update();
@@ -150,17 +241,15 @@ int main(int argc, char *argv[])
     std::ofstream posfile;
     posfile.open("intermediateResults/positionData.csv");
 
-    // std::ofstream boundposfile;
-    // boundposfile.open("intermediateResults/boundaryData.csv");
-    // CELL **B;
+    std::ofstream boundposfile;
+    boundposfile.open("intermediateResults/boundaryData.csv");
 
-    for (int t = 0; t < nt; t++)
-    {
-        looploop(M);
-        writecoordinates(M, posfile);
-        // B = findBorderCellsByEdgeScan(M, 200);
-        // writecoordinates(B, boundposfile);
-    }
+    
+
+    // for (int t = 0; t < nt; t++)
+    // {
+        // looploop(M, posfile, boundposfile);
+    // }
 
     std::cout << "simulation complete\n";
 }

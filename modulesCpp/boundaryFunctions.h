@@ -36,7 +36,7 @@ CELL **findBorderCellsByEdgeScan(CELL M[], double rt)
     CELL *rft = &M[i];
     CELL *rc = rft;
 
-    CELL **boundcells = getcellarray(N);
+    CELL **boundcells = getCellPointerArray(N);
     while (true)
     {
         CELL **rns = getNeighbors(M, rc, rt);
@@ -181,7 +181,7 @@ bool isOnBoundaryFOV(CELL **rns, CELL *C, double f)
 
 CELL **findBorderCellsByFOV(CELL M[], double rt, double f)
 {
-    CELL **boundcells = getcellarray(N);
+    CELL **boundcells = getCellPointerArray(N);
     CELL **p = boundcells;
     for (int i = 0; i < N; i++)
     {
@@ -197,7 +197,7 @@ CELL **findBorderCellsByFOV(CELL M[], double rt, double f)
 
 CELL **findBorderCellsByVecSum(CELL M[], double rt, double trmag)
 {
-    CELL **boundcells = getcellarray(N);
+    CELL **boundcells = getCellPointerArray(N);
     CELL **p = boundcells;
     for (int i = 0; i < N; i++)
     {
@@ -223,7 +223,7 @@ CELL **findBorderCellsByVecSum(CELL M[], double rt, double trmag)
 
 CELL **findBorderCellsByLevine(CELL M[], double rt)
 {
-    CELL **boundcells = getcellarray(N);
+    CELL **boundcells = getCellPointerArray(N);
     CELL **p = boundcells;
     for (int i = 0; i < N; i++)
     {
@@ -241,7 +241,7 @@ CELL **findBorderCellsByLevine(CELL M[], double rt)
 
 CELL **findBorderCellsByQuadrantEmpty(CELL M[], double rt)
 {
-    CELL **boundcells = getcellarray(N);
+    CELL **boundcells = getCellPointerArray(N);
     CELL **p = boundcells;
     for (int i = 0; i < N; i++)
     {

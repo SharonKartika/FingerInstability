@@ -209,7 +209,7 @@ float dist(CELL a, CELL b)
 /*  Allocate N pointers.
     Return pointer to pointer array
     */
-CELL **getcellarray(int N)
+CELL **getCellPointerArray(int N)
 {
     CELL **p = (CELL **)malloc(N * sizeof(p));
     for (int i = 0; i < N; i++)
@@ -224,7 +224,7 @@ CELL **getcellarray(int N)
     */
 CELL **setdiff(CELL **A, CELL **B)
 {
-    CELL **p = getcellarray(N / 5);
+    CELL **p = getCellPointerArray(N / 5);
     CELL **c = p;
     while (*A)
     {
@@ -240,8 +240,8 @@ CELL **setdiff(CELL **A, CELL **B)
 
 CELL **getNeighbors(CELL M[], CELL *cell, float rt)
 {
-    // CELL **rns = getcellarray(N / 5);
-    CELL **rns = getcellarray(N);
+    // CELL **rns = getCellPointerArray(N / 5);
+    CELL **rns = getCellPointerArray(N);
 
     CELL **p = rns;
     for (int i = 0; i < N; i++)
@@ -311,7 +311,7 @@ CELL **findBorderCellsByEdgeScan(CELL M[], float rt)
     CELL *rft = &M[i];
     CELL *rc = rft;
 
-    CELL **boundcells = getcellarray(N);
+    CELL **boundcells = getCellPointerArray(N);
     while (true)
     {
         CELL **rns = getNeighbors(M, rc, rt);
@@ -499,7 +499,7 @@ bool isOnBoundaryFOV(CELL **rns, CELL *C, float f)
 
 CELL **findBorderCellsByLevine(CELL M[], float rt)
 {
-    CELL **boundcells = getcellarray(N);
+    CELL **boundcells = getCellPointerArray(N);
     CELL **p = boundcells;
     for (int i = 0; i < N; i++)
     {
@@ -517,7 +517,7 @@ CELL **findBorderCellsByLevine(CELL M[], float rt)
 
 CELL **findBorderCellsByQuadrantEmpty(CELL M[], float rt)
 {
-    CELL **boundcells = getcellarray(N);
+    CELL **boundcells = getCellPointerArray(N);
     CELL **p = boundcells;
     for (int i = 0; i < N; i++)
     {
@@ -535,7 +535,7 @@ CELL **findBorderCellsByQuadrantEmpty(CELL M[], float rt)
 
 CELL **findBorderCellsByFOV(CELL M[], float rt, float f)
 {
-    CELL **boundcells = getcellarray(N);
+    CELL **boundcells = getCellPointerArray(N);
     CELL **p = boundcells;
     for (int i = 0; i < N; i++)
     {
@@ -555,7 +555,7 @@ CELL **findBorderCellsByFOV(CELL M[], float rt, float f)
 
 CELL **findBorderCellsByVecSum(CELL M[], float rt, float trmag)
 {
-    CELL **boundcells = getcellarray(N);
+    CELL **boundcells = getCellPointerArray(N);
     CELL **p = boundcells;
     for (int i = 0; i < N; i++)
     {

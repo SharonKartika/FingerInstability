@@ -68,7 +68,7 @@ VEC2 mean(CELL M[])
 /*  Allocate N pointers.
     Return pointer to pointer array
     */
-CELL **getcellarray(int N)
+CELL **getCellPointerArray(int N)
 {
     CELL **p = (CELL **)malloc(N * sizeof(p));
     for (int i = 0; i < N; i++)
@@ -87,7 +87,7 @@ double dist(CELL a, CELL b)
 
 CELL **getNeighbors(CELL M[], CELL *cell, double rt)
 {
-    CELL **rns = getcellarray(N);
+    CELL **rns = getCellPointerArray(N);
 
     CELL **p = rns;
     for (int i = 0; i < N; i++)
@@ -123,7 +123,7 @@ int in(CELL *p, CELL **m)
     */
 CELL **setdiff(CELL **A, CELL **B)
 {
-    CELL **p = getcellarray(N / 5);
+    CELL **p = getCellPointerArray(N / 5);
     CELL **c = p;
     while (*A)
     {
