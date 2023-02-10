@@ -123,13 +123,15 @@ void swap(auto &a, auto &b)
     b = t;
 }
 
+/*returns array of indices of k smallest elements
+Destroys the input array in the process*/
 int *argkmin(double q[], int n, int k)
 {
     int *kq = (int *)malloc(sizeof(int) * k);
     for (int i = 0; i < k; i++)
     {
-        int j = argmin(q + i, n - i);
-        swap(q[i], q[j]);
+        int j = argmin(q, n);
+        q[j] = std::numeric_limits<double>::max();
         kq[i] = j;
     }
     return kq;
@@ -167,10 +169,10 @@ VEC2 getGravityForce(CELL *A, CELL *B)
 VEC2 getActinForce(CELL *T, CELL *A, CELL *B)
 {
     // VEC2 FAc = getInteractionForce(*T, *A) +
-    //            getInteractionForce(*T, *B);
-    // return FAc * 10;
+    //    getInteractionForce(*T, *B);
+    // return FAc * 100;
     VEC2 FAc = getGravityForce(T, A) + getGravityForce(T, B);
-    const double scale = 1E6;
+    const double scale = 1E8;
     // std::cout << FAc.x << " " << FAc.y << std::endl;
     // exit(0);
     return FAc * scale;
@@ -206,7 +208,7 @@ void looploop(CELL M[],
     for (int i = 0; i < len(B); i++)
     {
         VEC2 FAc; // F actin
-        FAc = getActinForce(*B, B);
+        FAc = getActinForce(*(B + i), B);
         (*(B + i))->a += FAc;
     }
     writecoordinates(M, posfile);
@@ -244,12 +246,9 @@ int main(int argc, char *argv[])
     std::ofstream boundposfile;
     boundposfile.open("intermediateResults/boundaryData.csv");
 
-    
-
-    // for (int t = 0; t < nt; t++)
-    // {
-        // looploop(M, posfile, boundposfile);
-    // }
-
+    for (int t = 0; t < nt; t++)
+    {
+        looploop(M, posfile, boundposfile);
+    }
     std::cout << "simulation complete\n";
 }
