@@ -69,14 +69,14 @@ float fInteractionMag(float r)
     }
 }
 
-// void setaccn(CELL &A, CELL &B)
-// {
-//     VEC2 dp = B.p - A.p;
-//     float r = dp.mag();
-//     float f = fInteractionMag(r);
-//     VEC2 F(f * (dp.x / r), f * (dp.y / r));
-//     A.a += F;
-// }
+void setaccn(CELL &A, CELL &B)
+{
+    VEC2 dp = B.p - A.p;
+    float r = dp.mag();
+    float f = fInteractionMag(r);
+    VEC2 F(f * (dp.x / r), f * (dp.y / r));
+    A.a += F;
+}
 
 VEC2 getInteractionForce(CELL A, CELL B)
 {
@@ -107,19 +107,6 @@ void looploop(CELL M[])
         VEC2 FIi = getInteractionForce(M[i], B);
         M[i].a = FIi;
     }
-    // interaction
-    // for (int i = 0; i < N; i++)
-    // {
-    //     M[i].a = VEC2(0., 0.);
-    //     for (int j = 0; j < N; j++)
-    //     {
-
-    //         if (i != j)
-    //         {
-    //             setaccn(M[i], M[j]);
-    //         }
-    //     }
-    // }
     // viscek
     // for (int i = 0; i < N; i++)
     // {
