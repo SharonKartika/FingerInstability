@@ -21,7 +21,7 @@ Todo: combine the different forces into a single loop
 
 int N;  // #agents
 int nt; // #time steps
-float rt{400.}; 
+float rt{70.};
 float beta{60.};
 float w2, h2;
 float W, H;
@@ -49,17 +49,17 @@ CELL **getcellarray(int N);
 CELL **getneighbors(CELL M[], CELL *cell, float rt);
 CELL **setdiff(CELL **A, CELL **B);
 
-float interactionforcemag(float r)
+float fInteractionMag(float r)
 {
     if (r < rt)
     {
         float U0 = 2650, U1 = 30, U2 = 2, U3 = 1;
         float A0 = 8, A1 = 2, A2 = 25, A3 = 26;
-        // A0 = 40; //temp
+        A0 = 40; // temp
         float force = 0;
         force += U0 * r * exp(-(pow((r / A0), 2)));
-        // force += U2 * exp(-r / A2);
-        // force -= U3 * pow(r - A3, 2) * Hv(r - A3);
+        force += U2 * exp(-r / A2);
+        force -= U3 * pow(r - A3, 2) * Hv(r - A3);
         force += U1 * (r - A1) * Hv(r - A1);
         return -force;
     }
@@ -69,89 +69,109 @@ float interactionforcemag(float r)
     }
 }
 
-void setaccn(CELL &A, CELL &B)
+// void setaccn(CELL &A, CELL &B)
+// {
+//     VEC2 dp = B.p - A.p;
+//     float r = dp.mag();
+//     float f = fInteractionMag(r);
+//     VEC2 F(f * (dp.x / r), f * (dp.y / r));
+//     A.a += F;
+// }
+
+VEC2 getInteractionForce(CELL A, CELL B)
 {
     VEC2 dp = B.p - A.p;
     float r = dp.mag();
-    float f = interactionforcemag(r);
+    float f = fInteractionMag(r);
     VEC2 F(f * (dp.x / r), f * (dp.y / r));
-    A.a += F;
+    return F;
 }
 
 /*Loops through every cell and again through every cell  */
 void looploop(CELL M[])
 {
-    // interaction
     for (int i = 0; i < N; i++)
     {
-        M[i].a = VEC2(0., 0.);
-        for (int j = 0; j < N; j++)
+        VEC2 FIi(0.0, 0.0); // interaction force on i
+        for (int j = 0; j < N; i++)
         {
-
             if (i != j)
             {
-                setaccn(M[i], M[j]);
+                FIi += getInteractionForce(M[i], M[j]);
             }
         }
     }
+    // interaction
+    // for (int i = 0; i < N; i++)
+    // {
+    //     M[i].a = VEC2(0., 0.);
+    //     for (int j = 0; j < N; j++)
+    //     {
+
+    //         if (i != j)
+    //         {
+    //             setaccn(M[i], M[j]);
+    //         }
+    //     }
+    // }
     // viscek
-    for (int i = 0; i < N; i++)
-    {
-        VEC2 a;
-        int ninr = 0;
-        VEC2 dv;
-        for (int j = 0; j < N; j++)
-        {
+    // for (int i = 0; i < N; i++)
+    // {
+    //     VEC2 a;
+    //     int ninr = 0;
+    //     VEC2 dv;
+    //     for (int j = 0; j < N; j++)
+    //     {
 
-            VEC2 dp = M[j].p - M[i].p;
-            float r = dp.mag();
-            if (r < rt)
-            {
-                dv = M[j].v - M[i].v;
-                a += dv;
-                ninr += 1;
-            }
-        }
+    //         VEC2 dp = M[j].p - M[i].p;
+    //         float r = dp.mag();
+    //         if (r < rt)
+    //         {
+    //             dv = M[j].v - M[i].v;
+    //             a += dv;
+    //             ninr += 1;
+    //         }
+    //     }
 
-        M[i].a += a * (beta / ninr);
-    }
+    //     M[i].a += a * (beta / ninr);
+    // }
 
-    // noise
-    for (int i = 0; i < N; i++)
-    {
-        float sig0 = 150.;
-        float sig1 = 300.;
-        float rho0 = N / (W * H); // reference density (change to rho1)
-        float rho = 0.;
-        float sig = 0.;
-        float tau = 1.39;
-        // float tau = 0.01;
+    // // noise
+    // for (int i = 0; i < N; i++)
+    // {
+    //     float sig0 = 150.;
+    //     float sig1 = 300.;
+    //     float rho0 = N / (W * H); // reference density (change to rho1)
+    //     float rho = 0.;
+    //     float sig = 0.;
+    //     float tau = 1.39;
+    //     // float tau = 0.01;
 
-        VEC2 U = VEC2(randf(0, 1), randf(0, 1));
-        VEC2 xi(sqrt(-2 * log(U.x)) * cos(2 * PI * U.y),
-                sqrt(-2 * log(U.x)) * sin(2 * PI * U.y));
-        float std1 = 1; // temp
-        xi = xi * std1;
-        float theta = 0.;
-        for (int j = 0; j < N; j++)
-        {
+    //     VEC2 U = VEC2(randf(0, 1), randf(0, 1));
+    //     VEC2 xi(sqrt(-2 * log(U.x)) * cos(2 * PI * U.y),
+    //             sqrt(-2 * log(U.x)) * sin(2 * PI * U.y));
+    //     float std1 = 1; // temp
+    //     xi = xi * std1;
+    //     float theta = 0.;
+    //     for (int j = 0; j < N; j++)
+    //     {
 
-            VEC2 dp = M[j].p - M[i].p;
-            float r = dp.mag();
-            if (r < rt)
-            {
-                rho += 1;
-            }
-        }
-        rho /= PI * rt * rt;
-        sig = sig0 + (sig1 - sig0) * (1 - rho / rho0);
-        // euler maruyama integration
-        M[i].eta = M[i].eta - (M[i].eta) * (dt / tau);
-        M[i].eta = M[i].eta + (xi) * (sqrt(dt) / tau);
+    //         VEC2 dp = M[j].p - M[i].p;
+    //         float r = dp.mag();
+    //         if (r < rt)
+    //         {
+    //             rho += 1;
+    //         }
+    //     }
+    //     rho /= PI * rt * rt;
+    //     sig = sig0 + (sig1 - sig0) * (1 - rho / rho0);
+    //     // euler maruyama integration
+    //     M[i].eta = M[i].eta - (M[i].eta) * (dt / tau);
+    //     M[i].eta = M[i].eta + (xi) * (sqrt(dt) / tau);
 
-        M[i].eta = M[i].eta / M[i].eta.mag(); // normalize eta
-        M[i].a += M[i].eta * sig;
-    }
+    //     M[i].eta = M[i].eta / M[i].eta.mag(); // normalize eta
+    //     M[i].a += M[i].eta * sig;
+    // }
 
     for (int i = 0; i < N; i++)
     {
