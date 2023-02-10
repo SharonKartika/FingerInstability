@@ -192,7 +192,6 @@ CELL **findBorderCellsByFOV(CELL M[], double rt, double f)
             p++;
         }
     }
-    std::cout << "found by FOV" << std::endl;
     return boundcells;
 }
 
