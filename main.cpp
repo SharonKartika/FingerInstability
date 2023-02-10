@@ -94,7 +94,7 @@ void looploop(CELL M[])
     for (int i = 0; i < N; i++)
     {
         FIi = VEC2(0, 0);
-        for (int j = 0; j < N; i++)
+        for (int j = 0; j < N; j++)
         {
             if (i != j)
             {
