@@ -9,6 +9,7 @@
 #include "modulesCpp/constants.h"
 #include "modulesCpp/vecCellUtilities.h"
 #include "modulesCpp/boundaryFunctions.h"
+#include "modulesCpp/interactionForce.h"
 
 /*
 Units
@@ -49,45 +50,28 @@ CELL **getcellarray(int N);
 CELL **getNeighbors(CELL M[], CELL *cell, double rt);
 CELL **setdiff(CELL **A, CELL **B);
 
-double fInteractionMag(double r)
-{
-    if (r < rt)
-    {
-        double U0 = 2650, U1 = 30, U2 = 2, U3 = 1;
-        double A0 = 8, A1 = 2, A2 = 25, A3 = 26;
-        A0 = 40; // temp
-        double force = 0;
-        force += U0 * r * exp(-(pow((r / A0), 2)));
-        force += U2 * exp(-r / A2);
-        force -= U3 * pow(r - A3, 2) * Hv(r - A3);
-        force += U1 * (r - A1) * Hv(r - A1);
-        return -force;
-    }
-    else
-    {
-        return 0.;
-    }
-}
+//interaction force functions
+double fInteractionMag(double r);
+VEC2 getInteractionForce(CELL A, CELL B);
+VEC2 getInteractionForce(CELL A, CELL **B);
 
-VEC2 getInteractionForce(CELL A, CELL B)
-{
-    VEC2 dp = B.p - A.p;
-    double r = dp.mag();
-    double f = fInteractionMag(r);
-    VEC2 F(f * (dp.x / r), f * (dp.y / r));
-    return F;
-}
-
-VEC2 getInteractionForce(CELL A, CELL **B)
-{
-    VEC2 FIi(0.0, 0.0); // interaction force on i
-    while (*B)
-    {
-        FIi += getInteractionForce(A, **B);
+VEC2 getVicsekForce(CELL A, CELL **B){
+    VEC2 FVc(0.0, 0.0);
+    double ninr = 0.0;
+    VEC2 dv(0.0, 0.0);
+    while (*B){
+        dv = ((*B)->v - A.v);
+        FVc += dv;
+        ninr += 1.0;
         B++;
     }
-    return FIi;
+    
+    if (ninr==0)
+        return VEC2(0.0, 0.0);
+    
+    return FVc / ninr;
 }
+
 
 /*Loops through every cell and again through every cell  */
 void looploop(CELL M[])
@@ -95,8 +79,9 @@ void looploop(CELL M[])
     for (int i = 0; i < N; i++)
     {
         CELL **B = getNeighbors(M, &M[i], rt);
-        VEC2 FIi = getInteractionForce(M[i], B);
-        M[i].a = FIi;
+        VEC2 FIn = getInteractionForce(M[i], B);
+        VEC2 FVc = getVicsekForce(M[i], B);
+        M[i].a = FIn + FVc * beta;
     }
     // viscek
     // for (int i = 0; i < N; i++)
