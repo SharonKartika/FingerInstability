@@ -42,6 +42,11 @@ public:
         x += obj.x;
         y += obj.y;
     }
+    void operator-=(VEC2 const &obj)
+    {
+        x -= obj.x;
+        y -= obj.y;
+    }
     VEC2 operator/(double const &a)
     {
         VEC2 temp;

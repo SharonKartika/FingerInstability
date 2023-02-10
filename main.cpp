@@ -50,28 +50,61 @@ CELL **getcellarray(int N);
 CELL **getNeighbors(CELL M[], CELL *cell, double rt);
 CELL **setdiff(CELL **A, CELL **B);
 
-//interaction force functions
+// interaction force functions
 double fInteractionMag(double r);
 VEC2 getInteractionForce(CELL A, CELL B);
 VEC2 getInteractionForce(CELL A, CELL **B);
 
-VEC2 getVicsekForce(CELL A, CELL **B){
+VEC2 getVicsekForce(CELL A, CELL **B)
+{
     VEC2 FVc(0.0, 0.0);
-    double ninr = 0.0;
+    int ninr = 0;
     VEC2 dv(0.0, 0.0);
-    while (*B){
+    while (*B)
+    {
         dv = ((*B)->v - A.v);
         FVc += dv;
-        ninr += 1.0;
+        ninr++;
         B++;
     }
-    
-    if (ninr==0)
+    if (ninr == 0)
         return VEC2(0.0, 0.0);
-    
-    return FVc / ninr;
+    return FVc / double(ninr);
 }
 
+VEC2 unitnoise()
+{
+    VEC2 U = VEC2(randf(0, 1), randf(0, 1));
+    VEC2 xi(sqrt(-2 * log(U.x)) * cos(2 * PI * U.y),
+            sqrt(-2 * log(U.x)) * sin(2 * PI * U.y));
+    return xi;
+}
+
+double getLocalCellDensity(CELL **B)
+{
+    double rho = len(B) + 1; // including the current cell
+    return rho / (PI * rt * rt);
+}
+
+VEC2 getNoiseForce(CELL &A, CELL **B)
+{
+    double sig0 = 150.,
+           sig1 = 300.,
+           rho0 = N / (W * H),
+           rho = 0.,
+           sig = 0.,
+           tau = 1.39;
+    VEC2 xi = unitnoise();
+    rho = getLocalCellDensity(B);
+    sig = sig0 + (sig1 - sig0) * (1 - rho / rho0);
+
+    // integrate and normalize
+    A.eta -= A.eta * dt / tau;
+    A.eta += xi * sqrt(dt) / tau;
+    A.eta = A.eta / A.eta.mag();
+
+    return A.eta * sig;
+}
 
 /*Loops through every cell and again through every cell  */
 void looploop(CELL M[])
@@ -81,67 +114,11 @@ void looploop(CELL M[])
         CELL **B = getNeighbors(M, &M[i], rt);
         VEC2 FIn = getInteractionForce(M[i], B);
         VEC2 FVc = getVicsekForce(M[i], B);
-        M[i].a = FIn + FVc * beta;
+        VEC2 FNo = getNoiseForce(M[i], B);
+        M[i].a = FIn +
+                 FVc * beta +
+                 FNo;
     }
-    // viscek
-    // for (int i = 0; i < N; i++)
-    // {
-    //     VEC2 a;
-    //     int ninr = 0;
-    //     VEC2 dv;
-    //     for (int j = 0; j < N; j++)
-    //     {
-
-    //         VEC2 dp = M[j].p - M[i].p;
-    //         double r = dp.mag();
-    //         if (r < rt)
-    //         {
-    //             dv = M[j].v - M[i].v;
-    //             a += dv;
-    //             ninr += 1;
-    //         }
-    //     }
-
-    //     M[i].a += a * (beta / ninr);
-    // }
-
-    // // noise
-    // for (int i = 0; i < N; i++)
-    // {
-    //     double sig0 = 150.;
-    //     double sig1 = 300.;
-    //     double rho0 = N / (W * H); // reference density (change to rho1)
-    //     double rho = 0.;
-    //     double sig = 0.;
-    //     double tau = 1.39;
-    //     // double tau = 0.01;
-
-    //     VEC2 U = VEC2(randf(0, 1), randf(0, 1));
-    //     VEC2 xi(sqrt(-2 * log(U.x)) * cos(2 * PI * U.y),
-    //             sqrt(-2 * log(U.x)) * sin(2 * PI * U.y));
-    //     double std1 = 1; // temp
-    //     xi = xi * std1;
-    //     double theta = 0.;
-    //     for (int j = 0; j < N; j++)
-    //     {
-
-    //         VEC2 dp = M[j].p - M[i].p;
-    //         double r = dp.mag();
-    //         if (r < rt)
-    //         {
-    //             rho += 1;
-    //         }
-    //     }
-    //     rho /= PI * rt * rt;
-    //     sig = sig0 + (sig1 - sig0) * (1 - rho / rho0);
-    //     // euler maruyama integration
-    //     M[i].eta = M[i].eta - (M[i].eta) * (dt / tau);
-    //     M[i].eta = M[i].eta + (xi) * (sqrt(dt) / tau);
-
-    //     M[i].eta = M[i].eta / M[i].eta.mag(); // normalize eta
-    //     M[i].a += M[i].eta * sig;
-    // }
-
     for (int i = 0; i < N; i++)
     {
         M[i].update();
