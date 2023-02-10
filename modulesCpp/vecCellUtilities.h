@@ -44,7 +44,7 @@ VEC2 mean(CELL **M)
 {
     VEC2 m(0, 0);
     CELL **p = M;
-    float i = 0.;
+    double i = 0.;
 
     while (*p != NULL)
     {
@@ -79,13 +79,13 @@ CELL **getcellarray(int N)
 }
 
 
-float dist(CELL a, CELL b)
+double dist(CELL a, CELL b)
 {
     return (a.p - b.p).mag();
 }
 
 
-CELL **getNeighbors(CELL M[], CELL *cell, float rt)
+CELL **getNeighbors(CELL M[], CELL *cell, double rt)
 {
     CELL **rns = getcellarray(N);
 

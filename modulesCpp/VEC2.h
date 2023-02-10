@@ -5,8 +5,8 @@
 class VEC2
 {
 public:
-    float x, y;
-    VEC2(float X, float Y)
+    double x, y;
+    VEC2(double X, double Y)
     {
         x = X;
         y = Y;
@@ -30,7 +30,7 @@ public:
         temp.y = y - obj.y;
         return temp;
     }
-    VEC2 operator*(float const &a)
+    VEC2 operator*(double const &a)
     {
         VEC2 temp;
         temp.x = a * x;
@@ -42,14 +42,14 @@ public:
         x += obj.x;
         y += obj.y;
     }
-    VEC2 operator/(float const &a)
+    VEC2 operator/(double const &a)
     {
         VEC2 temp;
         temp.x = x / a;
         temp.y = y / a;
         return temp;
     }
-    float mag()
+    double mag()
     {
         return sqrt(pow(x, 2) + pow(y, 2));
     }

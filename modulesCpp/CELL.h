@@ -8,8 +8,8 @@ public:
     VEC2 p, v, a, eta;
     CELL()
     {
-        float theta = randf(0, 2 * PI);
-        float r = w2 * sqrt(randf(0, 1));
+        double theta = randf(0, 2 * PI);
+        double r = w2 * sqrt(randf(0, 1));
         p = VEC2(r * cos(theta), r * sin(theta));
         // p = VEC2(randf(-w2, w2), randf(-h2, h2));
         v = VEC2(randf(-10, 10), randf(-10, 10));
@@ -17,9 +17,9 @@ public:
         theta = randf(0, 2 * PI);
         eta = VEC2(cos(theta), sin(theta));
     }
-    CELL(float x, float y)
+    CELL(double x, double y)
     {
-        float theta = randf(0, 2 * PI);
+        double theta = randf(0, 2 * PI);
         p = VEC2(x, y);
         v = VEC2(randf(-10, 10), randf(-10, 10));
         a = VEC2(0., 0.);

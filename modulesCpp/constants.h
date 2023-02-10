@@ -1,17 +1,17 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-constexpr float dt{0.01};
-constexpr float PI{3.1415926535};
+constexpr double dt{0.01};
+constexpr double PI{3.1415926535};
 
 // Shared variables
-extern float beta;
-extern float W;
-extern float H;
+extern double beta;
+extern double W;
+extern double H;
 extern int nt; 
 extern int N; 
-extern float w2;
-extern float h2;
-extern float rt;
+extern double w2;
+extern double h2;
+extern double rt;
 
 #endif

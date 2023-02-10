@@ -6,14 +6,14 @@
 #include "constants.h"
 #include "vecCellUtilities.h"
 
-float angleAC(VEC2 *rl, VEC2 *rc, VEC2 *rn)
+double angleAC(VEC2 *rl, VEC2 *rc, VEC2 *rn)
 {
     VEC2 A = *rc - *rl;
     VEC2 B = *rn - *rc;
-    float k = B.y * A.x - A.y * B.x;
-    float costheta = (A.x * B.x + A.y * B.y) /
+    double k = B.y * A.x - A.y * B.x;
+    double costheta = (A.x * B.x + A.y * B.y) /
                      (A.mag() * B.mag());
-    float theta = acos(costheta);
+    double theta = acos(costheta);
     if (k > 0)
         return PI - theta;
     else
@@ -24,10 +24,10 @@ float angleAC(VEC2 *rl, VEC2 *rc, VEC2 *rn)
 /*Writes to a file the cells that lie on the border
 Takes the farthest cell.
 Finds the next cell on the boundary incrementally*/
-CELL **findBorderCellsByEdgeScan(CELL M[], float rt)
+CELL **findBorderCellsByEdgeScan(CELL M[], double rt)
 {
     VEC2 rcm = mean(M);
-    float dists[N];
+    double dists[N];
     for (int i = 0; i < N; i++)
     {
         dists[i] = (rcm - M[i].p).mag();
@@ -43,7 +43,7 @@ CELL **findBorderCellsByEdgeScan(CELL M[], float rt)
         VEC2 rl = mean(rns);
         CELL **rnsnb = setdiff(rns, boundcells);
         int lenrnsnb = len(rnsnb);
-        float *nscores = (float *)malloc(lenrnsnb * sizeof(*nscores));
+        double *nscores = (double *)malloc(lenrnsnb * sizeof(*nscores));
         for (int i = 0; i < lenrnsnb; i++)
         {
             *(nscores + i) = angleAC(&rl, &(rc->p), &(*(rnsnb + i))->p);
@@ -122,7 +122,7 @@ bool isOnBoundary(int *a)
     //  than the average number of cells in other 3
     for (int i = 0; i < 4; i++)
     {
-        float avg = 0;
+        double avg = 0;
         for (int j = 0; j < 4; j++)
         {
             if (i != j)
@@ -161,17 +161,17 @@ bool isOnBoundary(int *a)
 }
 
 // -[ ] Optimise using short circuiting
-bool isOnBoundaryFOV(CELL **rns, CELL *C, float f)
+bool isOnBoundaryFOV(CELL **rns, CELL *C, double f)
 {
     int nelt = len(rns);
-    float *q = (float *)malloc(sizeof(float) * nelt);
+    double *q = (double *)malloc(sizeof(double) * nelt);
     for (int i = 0; i < nelt; i++)
     {
         VEC2 s = (*(rns + i))->p - C->p;
         *(q + i) = atan2(s.y, s.x);
     }
     sort(q, nelt);
-    float lg = findLargestGap(q, nelt);
+    double lg = findLargestGap(q, nelt);
     if (lg > f)
     {
         return true;
@@ -179,7 +179,7 @@ bool isOnBoundaryFOV(CELL **rns, CELL *C, float f)
     return false;
 }
 
-CELL **findBorderCellsByFOV(CELL M[], float rt, float f)
+CELL **findBorderCellsByFOV(CELL M[], double rt, double f)
 {
     CELL **boundcells = getcellarray(N);
     CELL **p = boundcells;
@@ -196,7 +196,7 @@ CELL **findBorderCellsByFOV(CELL M[], float rt, float f)
     return boundcells;
 }
 
-CELL **findBorderCellsByVecSum(CELL M[], float rt, float trmag)
+CELL **findBorderCellsByVecSum(CELL M[], double rt, double trmag)
 {
     CELL **boundcells = getcellarray(N);
     CELL **p = boundcells;
@@ -222,7 +222,7 @@ CELL **findBorderCellsByVecSum(CELL M[], float rt, float trmag)
     return boundcells;
 }
 
-CELL **findBorderCellsByLevine(CELL M[], float rt)
+CELL **findBorderCellsByLevine(CELL M[], double rt)
 {
     CELL **boundcells = getcellarray(N);
     CELL **p = boundcells;
@@ -240,7 +240,7 @@ CELL **findBorderCellsByLevine(CELL M[], float rt)
     return boundcells;
 }
 
-CELL **findBorderCellsByQuadrantEmpty(CELL M[], float rt)
+CELL **findBorderCellsByQuadrantEmpty(CELL M[], double rt)
 {
     CELL **boundcells = getcellarray(N);
     CELL **p = boundcells;
