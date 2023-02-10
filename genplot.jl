@@ -25,7 +25,7 @@ function generateAnimation(W, H)
 end
 
 function simulateAndPlot(;N=200, n=100, W=1200, H=1200)
-	rt = 100.0;
+	rt = 70.0;
 	t1 = @elapsed run(`g++ main.cpp -o main`);
 	t2 = @elapsed run(`./main $(N) $(n) $(rt)`)
 	println("Time taken to simulate: $(t1+t2) seconds\n");

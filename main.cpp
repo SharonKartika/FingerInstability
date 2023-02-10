@@ -90,9 +90,10 @@ VEC2 getInteractionForce(CELL A, CELL B)
 /*Loops through every cell and again through every cell  */
 void looploop(CELL M[])
 {
+    VEC2 FIi(0.0, 0.0); // interaction force on i
     for (int i = 0; i < N; i++)
     {
-        VEC2 FIi(0.0, 0.0); // interaction force on i
+        FIi = VEC2(0, 0);
         for (int j = 0; j < N; i++)
         {
             if (i != j)
@@ -175,6 +176,7 @@ void looploop(CELL M[])
 
     for (int i = 0; i < N; i++)
     {
+        M[i].a += FIi;
         M[i].update();
     }
 }
