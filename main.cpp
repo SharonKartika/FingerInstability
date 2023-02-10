@@ -112,9 +112,12 @@ void looploop(CELL M[])
     for (int i = 0; i < N; i++)
     {
         CELL **B = getNeighbors(M, &M[i], rt);
-        VEC2 FIn = getInteractionForce(M[i], B);
-        VEC2 FVc = getVicsekForce(M[i], B);
-        VEC2 FNo = getNoiseForce(M[i], B);
+        VEC2 FIn, FVc, FNo;
+
+        FIn = getInteractionForce(M[i], B);
+        FVc = getVicsekForce(M[i], B);
+        FNo = getNoiseForce(M[i], B);
+
         M[i].a = FIn +
                  FVc * beta +
                  FNo;
