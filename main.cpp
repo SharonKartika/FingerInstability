@@ -141,7 +141,7 @@ CELL **kClosest(CELL *T, CELL **B, int k)
 {
     CELL **KN = getCellPointerArray(k);
     int n = len(B);
-    double *dists = (double *)malloc(sizeof(double) * len(B));
+    double *dists = (double *)malloc(sizeof(double) * n);
     for (int i = 0; i < n; i++)
     {
         dists[i] = ((*(B + i))->p - T->p).mag();
@@ -158,19 +158,19 @@ CELL **kClosest(CELL *T, CELL **B, int k)
 
 VEC2 getGravityForce(CELL *A, CELL *B)
 {
-    VEC2 dp = (A->p - B->p);
-    double r = dp.mag();
-    double fmag = 1 / (r * r);
-    VEC2 FAc = VEC2(fmag * dp.x / r,
-                    fmag * dp.y / r);
-    return FAc;
+    // VEC2 dp = (A->p - B->p);
+    // double r = dp.mag();
+    // double fmag = 1 / (r * r);
+    // VEC2 FAc = dp / r;
+    // return FAc * fmag;
+    return VEC2(1e-10, 1e-10);
 }
 // calculate force on T due to A and B
 VEC2 getActinForce(CELL *T, CELL *A, CELL *B)
 {
     // VEC2 FAc = getInteractionForce(*T, *A) +
     //    getInteractionForce(*T, *B);
-    // return FAc * 100;
+    // return FAc * 100; 
     VEC2 FAc = getGravityForce(T, A) + getGravityForce(T, B);
     const double scale = 1E8;
     // std::cout << FAc.x << " " << FAc.y << std::endl;
@@ -181,6 +181,12 @@ VEC2 getActinForce(CELL *T, CELL *A, CELL *B)
 VEC2 getActinForce(CELL *T, CELL **B)
 {
     CELL **KN = kClosest(T, B, 2);
+    while (*KN)
+    {
+        std::cout<<(*KN)->p.x<<" "<<(*KN)->p.y<<std::endl;
+        KN++;
+    }
+    exit(0);
     VEC2 FAc = getActinForce(T, *(KN + 0), *(KN + 1));
     return FAc;
 }
@@ -192,19 +198,21 @@ void looploop(CELL M[],
 {
     for (int i = 0; i < N; i++)
     {
-        CELL **B = getNeighbors(M, &M[i], rt);
-        VEC2 FIn, FVc, FNo;
+        //     CELL **B = getNeighbors(M, &M[i], rt);
+        // VEC2 FIn;
+        // VEC2 FVc;
+        // VEC2 FNo;
 
-        FIn = getInteractionForce(M[i], B);
-        FVc = getVicsekForce(M[i], B);
-        FNo = getNoiseForce(M[i], B);
+        // FIn = getInteractionForce(M[i], B);
+        // FVc = getVicsekForce(M[i], B);
+        // FNo = getNoiseForce(M[i], B);
 
         M[i].a = VEC2(0, 0);
         //  FIn +
         //  FVc * beta +
         //  FNo;
     }
-    CELL **B = findBorderCellsByFOV(M, 400, 3 * PI / 4);
+    CELL **B = findBorderCellsByFOV(M, 400, 2);
     for (int i = 0; i < len(B); i++)
     {
         VEC2 FAc; // F actin
