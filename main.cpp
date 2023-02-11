@@ -158,35 +158,33 @@ CELL **kClosest(CELL *T, CELL **B, int k)
 
 VEC2 getGravityForce(CELL *A, CELL *B)
 {
-    // VEC2 dp = (A->p - B->p);
+    // VEC2 dp = (B->p - A->p);
     // double r = dp.mag();
-    // double fmag = 1 / (r * r);
+    // double fmag = 1 / (r);
     // VEC2 FAc = dp / r;
-    // return FAc * fmag;
-    return VEC2(1e-10, 1e-10);
+    // return FAc * fmag * (1e7);
+    VEC2 dp = (B->p - A->p);
+    double r = dp.mag();
+    VEC2 u = dp.unit();
+    double f = 1 / (r * r);
+    return u * f * 1e7;
 }
 // calculate force on T due to A and B
 VEC2 getActinForce(CELL *T, CELL *A, CELL *B)
 {
-    // VEC2 FAc = getInteractionForce(*T, *A) +
-    //    getInteractionForce(*T, *B);
-    // return FAc * 100; 
-    VEC2 FAc = getGravityForce(T, A) + getGravityForce(T, B);
-    const double scale = 1E8;
+    VEC2 FAc = getInteractionForce(*T, *A) +
+               getInteractionForce(*T, *B);
+    return FAc * 1e8;
+    // VEC2 FAc = getGravityForce(T, A) + getGravityForce(T, B);
+    // const double scale = 1E8;
     // std::cout << FAc.x << " " << FAc.y << std::endl;
     // exit(0);
-    return FAc * scale;
+    // return FAc * scale;
 }
 
 VEC2 getActinForce(CELL *T, CELL **B)
 {
     CELL **KN = kClosest(T, B, 2);
-    while (*KN)
-    {
-        std::cout<<(*KN)->p.x<<" "<<(*KN)->p.y<<std::endl;
-        KN++;
-    }
-    exit(0);
     VEC2 FAc = getActinForce(T, *(KN + 0), *(KN + 1));
     return FAc;
 }
@@ -198,26 +196,31 @@ void looploop(CELL M[],
 {
     for (int i = 0; i < N; i++)
     {
-        //     CELL **B = getNeighbors(M, &M[i], rt);
-        // VEC2 FIn;
-        // VEC2 FVc;
-        // VEC2 FNo;
+        CELL **B = getNeighbors(M, &M[i], rt);
+        VEC2 FIn;
+        VEC2 FVc;
+        VEC2 FNo;
 
-        // FIn = getInteractionForce(M[i], B);
-        // FVc = getVicsekForce(M[i], B);
-        // FNo = getNoiseForce(M[i], B);
+        FIn = getInteractionForce(M[i], B);
+        FVc = getVicsekForce(M[i], B);
+        FNo = getNoiseForce(M[i], B);
 
-        M[i].a = VEC2(0, 0);
-        //  FIn +
-        //  FVc * beta +
-        //  FNo;
+        M[i].a = // VEC2(0, 0);
+            FIn +
+            FVc * beta +
+            FNo;
     }
     CELL **B = findBorderCellsByFOV(M, 400, 2);
     for (int i = 0; i < len(B); i++)
     {
-        VEC2 FAc; // F actin
-        FAc = getActinForce(*(B + i), B);
-        (*(B + i))->a += FAc;
+        // for (int j = 0; j < len(B); j++){
+        //     if (*(B+i) != *(B+j)){
+        //         (*(B+i))->a += getGravityForce(*(B+i), *(B+j));
+        //     }
+        // }
+        // VEC2 FAc; // F bodiesactin
+        // FAc = getActinForce(*(B + i), B);
+        // (*(B + i))->a += FAc;
     }
     writecoordinates(M, posfile);
     writecoordinates(B, boundposfile);

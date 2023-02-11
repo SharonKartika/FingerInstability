@@ -58,6 +58,9 @@ public:
     {
         return sqrt(pow(x, 2) + pow(y, 2));
     }
+    VEC2 unit(){
+        return (*this)/this->mag();
+    }
 };
 
 #endif

@@ -29,6 +29,27 @@ function generateAnimation(W, H)
     end
 end
 
+function generateAnimationNC(;W=1200, H=1200, df="positionData.csv", params="")
+    data = readlines("intermediateResults/$(df)")
+    date = Dates.format(Dates.now(), "dd-mm-yy-HHMMSS")
+
+    anim = @animate for d in data
+        ds = parse.(Float64, split(d,','))
+        x = ds[1:2:end]
+        y = ds[2:2:end]
+
+        plot(x, y, seriestype=:scatter,
+                xlims=[-W / 2, W / 2],
+                ylims=[-H / 2, H / 2],
+                legend=nothing,
+                # axis=nothing,
+                markerstrokewidth=0,
+                c=:royalblue,
+                aspectratio=:equal)
+    end
+    gif(anim, "results/Result$(date)_$(params).gif", fps=30)
+end
+
 function simulateAndPlot(; N=200, nt=100, W=1200, H=1200)
     rt = 70.0
     t1 = @elapsed run(`g++ main.cpp -o main`)

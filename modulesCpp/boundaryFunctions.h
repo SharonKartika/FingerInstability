@@ -164,6 +164,9 @@ bool isOnBoundary(int *a)
 bool isOnBoundaryFOV(CELL **rns, CELL *C, double f)
 {
     int nelt = len(rns);
+    if (nelt <= 1){ //no neighbors -> on boundary
+        return true;
+    }
     double *q = (double *)malloc(sizeof(double) * nelt);
     for (int i = 0; i < nelt; i++)
     {
