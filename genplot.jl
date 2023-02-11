@@ -29,23 +29,59 @@ function generateAnimation(W, H)
     end
 end
 
-function generateAnimationNC(;W=1200, H=1200, df="positionData.csv", params="")
+function generateAnimationNC(; W=1200, H=1200, df="positionData.csv", params="")
     data = readlines("intermediateResults/$(df)")
     date = Dates.format(Dates.now(), "dd-mm-yy-HHMMSS")
 
     anim = @animate for d in data
-        ds = parse.(Float64, split(d,','))
+        ds = parse.(Float64, split(d, ','))
         x = ds[1:2:end]
         y = ds[2:2:end]
 
         plot(x, y, seriestype=:scatter,
-                xlims=[-W / 2, W / 2],
-                ylims=[-H / 2, H / 2],
-                legend=nothing,
-                # axis=nothing,
-                markerstrokewidth=0,
-                c=:royalblue,
-                aspectratio=:equal)
+            xlims=[-W / 2, W / 2],
+            ylims=[-H / 2, H / 2],
+            legend=nothing,
+            # axis=nothing,
+            markerstrokewidth=0,
+            c=:royalblue,
+            aspectratio=:equal)
+
+        plot!()
+    end
+    gif(anim, "results/Result$(date)_$(params).gif", fps=30)
+end
+
+function generateAnimationCombined(;W=1200, H=1200, params="")
+    D1 = readlines("intermediateResults/positionData.csv")
+    D2 = readlines("intermediateResults/boundaryData.csv")
+
+    date = Dates.format(Dates.now(), "dd-mm-yy-HHMMSS")
+    function getxy(Dline)
+        ds = parse.(Float64, split(Dline, ','))
+        x = ds[1:2:end]
+        y = ds[2:2:end]
+        return x, y
+    end
+    anim = @animate for i in 1:lastindex(D1)
+        x, y = getxy(D1[i])
+
+        plot(x, y, seriestype=:scatter,
+            xlims=[-W / 2, W / 2],
+            ylims=[-H / 2, H / 2],
+            legend=nothing,
+            # axis=nothing,
+            markerstrokewidth=0,
+            c=:royalblue,
+            aspectratio=:equal)
+
+        x, y = getxy(D2[i])
+        plot!(x, y, seriestype=:scatter,
+            legend=nothing,
+            # axis=nothing,
+            markerstrokewidth=0,
+            c=:orange,
+            aspectratio=:equal)
     end
     gif(anim, "results/Result$(date)_$(params).gif", fps=30)
 end

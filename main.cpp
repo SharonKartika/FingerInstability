@@ -172,14 +172,14 @@ VEC2 getGravityForce(CELL *A, CELL *B)
 // calculate force on T due to A and B
 VEC2 getActinForce(CELL *T, CELL *A, CELL *B)
 {
-    // VEC2 FAc = getInteractionForce(*T, *A) +
-            //    getInteractionForce(*T, *B);
-    // return FAc * 1e8;
-    VEC2 FAc = getGravityForce(T, A) + getGravityForce(T, B);
-    const double scale = 1E8;
+    VEC2 FAc = getInteractionForce(*T, *A) +
+               getInteractionForce(*T, *B);
+    return FAc * 10;
+    // VEC2 FAc = getGravityForce(T, A) + getGravityForce(T, B);
+    // const double scale = 1E8;
     // std::cout << FAc.x << " " << FAc.y << std::endl;
     // exit(0);
-    return FAc * scale;
+    // return FAc * scale;
 }
 
 VEC2 getActinForce(CELL *T, CELL **B)
