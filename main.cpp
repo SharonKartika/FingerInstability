@@ -167,19 +167,19 @@ VEC2 getGravityForce(CELL *A, CELL *B)
     double r = dp.mag();
     VEC2 u = dp.unit();
     double f = 1 / (r * r);
-    return u * f * 1e7;
+    return u * f;
 }
 // calculate force on T due to A and B
 VEC2 getActinForce(CELL *T, CELL *A, CELL *B)
 {
-    VEC2 FAc = getInteractionForce(*T, *A) +
-               getInteractionForce(*T, *B);
-    return FAc * 1e8;
-    // VEC2 FAc = getGravityForce(T, A) + getGravityForce(T, B);
-    // const double scale = 1E8;
+    // VEC2 FAc = getInteractionForce(*T, *A) +
+            //    getInteractionForce(*T, *B);
+    // return FAc * 1e8;
+    VEC2 FAc = getGravityForce(T, A) + getGravityForce(T, B);
+    const double scale = 1E8;
     // std::cout << FAc.x << " " << FAc.y << std::endl;
     // exit(0);
-    // return FAc * scale;
+    return FAc * scale;
 }
 
 VEC2 getActinForce(CELL *T, CELL **B)
@@ -205,10 +205,10 @@ void looploop(CELL M[],
         FVc = getVicsekForce(M[i], B);
         FNo = getNoiseForce(M[i], B);
 
-        M[i].a = // VEC2(0, 0);
-            FIn +
-            FVc * beta +
-            FNo;
+        M[i].a = VEC2(0, 0);
+            // FIn +
+            // FVc * beta +
+            // FNo;
     }
     CELL **B = findBorderCellsByFOV(M, 400, 2);
     for (int i = 0; i < len(B); i++)
@@ -218,9 +218,9 @@ void looploop(CELL M[],
         //         (*(B+i))->a += getGravityForce(*(B+i), *(B+j));
         //     }
         // }
-        // VEC2 FAc; // F bodiesactin
-        // FAc = getActinForce(*(B + i), B);
-        // (*(B + i))->a += FAc;
+        VEC2 FAc; // F bodiesactin
+        FAc = getActinForce(*(B + i), B);
+        (*(B + i))->a += FAc;
     }
     writecoordinates(M, posfile);
     writecoordinates(B, boundposfile);
