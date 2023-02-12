@@ -88,7 +88,7 @@ def main():
     
     X = np.array([x, y]).T
     np.savetxt("intermediateResults/pointsInPolygon.csv", X, delimiter=" ")
-    # plt.scatter(x, y)
+    plt.scatter(x, y)
 
 
 # %%

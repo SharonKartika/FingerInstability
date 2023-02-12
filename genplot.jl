@@ -3,6 +3,8 @@ using DelimitedFiles
 using Dates
 gr()
 theme(:juno)
+# theme(:dracula)
+plot(x, y, arrow=:true,legend=:none,color=:blue)
 
 function generateAnimation(W, H)
     data = readdlm("intermediateResults/positionData.csv", ',', Float64)
@@ -52,7 +54,7 @@ function generateAnimationNC(; W=1200, H=1200, df="positionData.csv", params="")
     gif(anim, "results/Result$(date)_$(params).gif", fps=30)
 end
 
-function generateAnimationCombined(;W=1200, H=1200, params="")
+function generateAnimationCombined(; W=1200, H=1200, params="")
     D1 = readlines("intermediateResults/positionData.csv")
     D2 = readlines("intermediateResults/boundaryData.csv")
 
@@ -81,6 +83,30 @@ function generateAnimationCombined(;W=1200, H=1200, params="")
             # axis=nothing,
             markerstrokewidth=0,
             c=:orange,
+            aspectratio=:equal)
+    end
+    gif(anim, "results/Result$(date)_$(params).gif", fps=30)
+end
+
+function generateArrowPlots(; W=1200, H=1200, params="")
+    D = readlines("intermediateResults/linesBetweenCells.csv")
+    date = Dates.format(Dates.now(), "dd-mm-yy-HHMMSS")
+    anim = @animate for d in D
+        di = split(d, ',')[1:end-1]
+        di = parse.(Float64, di)
+        xi = di[1:4:end]
+        yi = di[2:4:end]
+        xf = di[3:4:end]
+        yf = di[4:4:end]
+        y = [yi'; yf']
+        x = [xi'; xf']
+        plot(x, y,
+            xlims=[-W / 2, W / 2],
+            ylims=[-H / 2, H / 2],
+            # arrow=:true,
+            legend=:none,
+            color=:cyan,
+            alpha=0.5,
             aspectratio=:equal)
     end
     gif(anim, "results/Result$(date)_$(params).gif", fps=30)

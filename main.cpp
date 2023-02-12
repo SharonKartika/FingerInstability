@@ -28,6 +28,8 @@ double beta{60.};
 double w2, h2;
 double W, H;
 
+std::fstream lbc; // lines between 2 closest
+
 void writecoordinates(CELL **B, std::ofstream &file);
 void writecoordinates(CELL M[], std::ofstream &file);
 void sort(double *q, int nelt);
@@ -158,34 +160,65 @@ CELL **kClosest(CELL *T, CELL **B, int k)
 
 VEC2 getGravityForce(CELL *A, CELL *B)
 {
-    // VEC2 dp = (B->p - A->p);
-    // double r = dp.mag();
-    // double fmag = 1 / (r);
-    // VEC2 FAc = dp / r;
-    // return FAc * fmag * (1e7);
     VEC2 dp = (B->p - A->p);
     double r = dp.mag();
     VEC2 u = dp.unit();
     double f = 1 / (r * r);
     return u * f;
 }
+
+VEC2 testAttractiveForce(CELL *A, CELL *B)
+{
+    VEC2 dp = (B->p - A->p);
+    double r = dp.mag();
+    VEC2 unit = dp.unit();
+
+    double k = 100;
+    VEC2 F;
+    double rcutoff = 300.0;
+    if (r > rcutoff)
+    {
+        return VEC2(0, 0);
+    }
+    else
+    {
+        return unit * r * k;
+    }
+    // double mag = (r > rcutoff) ? 0.0 : -(r - rcutoff);
+    // F = unit * mag * k;
+    // return F;
+}
+
+// interaction force between boundary cells
+VEC2 boundaryInteractionForce(CELL *A, CELL *B)
+{
+}
+
 // calculate force on T due to A and B
 VEC2 getActinForce(CELL *T, CELL *A, CELL *B)
 {
-    VEC2 FAc = getInteractionForce(*T, *A) +
-               getInteractionForce(*T, *B);
-    return FAc * 10;
-    // VEC2 FAc = getGravityForce(T, A) + getGravityForce(T, B);
-    // const double scale = 1E8;
-    // std::cout << FAc.x << " " << FAc.y << std::endl;
-    // exit(0);
-    // return FAc * scale;
+    VEC2 FAc = testAttractiveForce(T, A) +
+               testAttractiveForce(T, B);
+    return FAc;
+}
+
+void writeKBoundInteraction(CELL *T, CELL *A, CELL *B)
+{
+    lbc << T->p.x << ","
+        << T->p.y << ","
+        << A->p.x << ","
+        << A->p.y << ","
+        << T->p.x << ","
+        << T->p.y << ","
+        << B->p.x << ","
+        << B->p.y << ",";
 }
 
 VEC2 getActinForce(CELL *T, CELL **B)
 {
     CELL **KN = kClosest(T, B, 2);
     VEC2 FAc = getActinForce(T, *(KN + 0), *(KN + 1));
+    writeKBoundInteraction(T, *(KN + 0), *(KN + 1));
     return FAc;
 }
 
@@ -205,10 +238,10 @@ void looploop(CELL M[],
         FVc = getVicsekForce(M[i], B);
         FNo = getNoiseForce(M[i], B);
 
-        M[i].a = VEC2(0, 0);
-            // FIn +
-            // FVc * beta +
-            // FNo;
+        M[i].a = // VEC2(0, 0);
+            FIn +
+            FVc * beta +
+            FNo;
     }
     CELL **B = findBorderCellsByFOV(M, 400, 2);
     for (int i = 0; i < len(B); i++)
@@ -221,7 +254,11 @@ void looploop(CELL M[],
         VEC2 FAc; // F bodiesactin
         FAc = getActinForce(*(B + i), B);
         (*(B + i))->a += FAc;
+
+        // CELL **D = getNeighbors(M, *(B + i), rt);
+        // (*(B + i))->a += getNoiseForce(*(*(B + i)), D);
     }
+    lbc << std::endl;
     writecoordinates(M, posfile);
     writecoordinates(B, boundposfile);
     // boundposfile.close();
@@ -240,9 +277,13 @@ int main(int argc, char *argv[])
     h2 = H / 2;
     rt = std::stof(argv[3]);
 
+    lbc.open("intermediateResults/linesBetweenCells.csv", std::fstream::out);
+    lbc.close();
+    lbc.open("intermediateResults/linesBetweenCells.csv", std::fstream::app);
     std::fstream pointinshape;
     pointinshape.open("intermediateResults/pointsInPolygon.csv", std::ios_base::in);
 
+    // CELL M[N];
     CELL *M = (CELL *)malloc(sizeof(CELL) * N);
     double x, y;
     for (int i = 0; i < N; i++)
@@ -261,5 +302,6 @@ int main(int argc, char *argv[])
     {
         looploop(M, posfile, boundposfile);
     }
+    lbc.close();
     std::cout << "simulation complete\n";
 }
