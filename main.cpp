@@ -177,13 +177,9 @@ VEC2 testAttractiveForce(CELL *A, CELL *B)
     VEC2 F;
     double rcutoff = 300.0;
     if (r > rcutoff)
-    {
         return VEC2(0, 0);
-    }
     else
-    {
         return unit * r * k;
-    }
     // double mag = (r > rcutoff) ? 0.0 : -(r - rcutoff);
     // F = unit * mag * k;
     // return F;
