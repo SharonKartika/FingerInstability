@@ -4,7 +4,6 @@ using Dates
 gr()
 theme(:juno)
 # theme(:dracula)
-plot(x, y, arrow=:true,legend=:none,color=:blue)
 
 function generateAnimation(W, H)
     data = readdlm("intermediateResults/positionData.csv", ',', Float64)
@@ -106,7 +105,7 @@ function generateArrowPlots(; W=1200, H=1200, params="")
             # arrow=:true,
             legend=:none,
             color=:cyan,
-            alpha=0.5,
+            # alpha=0.5,
             aspectratio=:equal)
     end
     gif(anim, "results/Result$(date)_$(params).gif", fps=30)

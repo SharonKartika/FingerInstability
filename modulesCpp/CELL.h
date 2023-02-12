@@ -2,12 +2,14 @@
 #define CELL_H
 #include "VEC2.h"
 #include "constants.h"
+
+
 class CELL
 {
 public:
     VEC2 p, v, a, eta;
     CELL()
-    {
+    {   //since w2 is not accessible here. Figure out.
         double theta = randf(0, 2 * PI);
         double r = w2 * sqrt(randf(0, 1));
         p = VEC2(r * cos(theta), r * sin(theta));

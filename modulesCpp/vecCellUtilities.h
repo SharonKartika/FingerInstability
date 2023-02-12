@@ -104,6 +104,25 @@ CELL **getNeighbors(CELL M[], CELL *cell, double rt)
     return rns;
 }
 
+CELL **getNeighbors(CELL **M, CELL *cell, double rt)
+{
+    CELL **rns = getCellPointerArray(N);
+
+    CELL **p = rns;
+    for (int i = 0; i < len(M); i++)
+    {
+        if (dist(*cell, *M[i]) < rt)
+        {
+            if (cell != M[i])
+            {
+                *p = M[i];
+                p++;
+            }
+        }
+    }
+    return rns;
+}
+
 /*Checks if A is in B*/
 int in(CELL *p, CELL **m)
 {

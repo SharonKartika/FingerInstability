@@ -26,7 +26,7 @@ int nt; // #time steps
 double rt{70.};
 double beta{60.};
 double w2, h2;
-double W, H;
+double W = 1200, H = 1200;
 
 std::fstream lbc; // lines between 2 closest
 
@@ -167,22 +167,38 @@ VEC2 getGravityForce(CELL *A, CELL *B)
     return u * f;
 }
 
+void writeKBoundInteraction(CELL *T, CELL *A)
+{
+    lbc << T->p.x << ","
+        << T->p.y << ","
+        << A->p.x << ","
+        << A->p.y << ",";
+}
+
 VEC2 testAttractiveForce(CELL *A, CELL *B)
 {
+    writeKBoundInteraction(A, B);
+
     VEC2 dp = (B->p - A->p);
     double r = dp.mag();
     VEC2 unit = dp.unit();
 
-    double k = 100;
-    VEC2 F;
-    double rcutoff = 300.0;
-    if (r > rcutoff)
-        return VEC2(0, 0);
-    else
-        return unit * r * k;
+    //Force 1
+    // double k = 100;
+    // VEC2 F;
+    // double rcutoff = 300.0;
+    // if (r > rcutoff)
+    //     return VEC2(0, 0);
+    // else
+    //     return unit * r * k;
+    
+    //Force 2
     // double mag = (r > rcutoff) ? 0.0 : -(r - rcutoff);
     // F = unit * mag * k;
     // return F;
+
+    //Force 3
+    return unit * -(1/pow(r,3)-10)*100;
 }
 
 // interaction force between boundary cells
@@ -198,23 +214,25 @@ VEC2 getActinForce(CELL *T, CELL *A, CELL *B)
     return FAc;
 }
 
-void writeKBoundInteraction(CELL *T, CELL *A, CELL *B)
-{
-    lbc << T->p.x << ","
-        << T->p.y << ","
-        << A->p.x << ","
-        << A->p.y << ","
-        << T->p.x << ","
-        << T->p.y << ","
-        << B->p.x << ","
-        << B->p.y << ",";
-}
+// void writeKBoundInteraction(CELL *T, CELL *A, CELL *B)
+// {
+//     lbc << T->p.x << ","
+//         << T->p.y << ","
+//         << A->p.x << ","
+//         << A->p.y << ","
+//         << T->p.x << ","
+//         << T->p.y << ","
+//         << B->p.x << ","
+//         << B->p.y << ",";
+// }
+
+
 
 VEC2 getActinForce(CELL *T, CELL **B)
 {
     CELL **KN = kClosest(T, B, 2);
     VEC2 FAc = getActinForce(T, *(KN + 0), *(KN + 1));
-    writeKBoundInteraction(T, *(KN + 0), *(KN + 1));
+    // writeKBoundInteraction(T, *(KN + 0), *(KN + 1));
     return FAc;
 }
 
@@ -234,23 +252,26 @@ void looploop(CELL M[],
         FVc = getVicsekForce(M[i], B);
         FNo = getNoiseForce(M[i], B);
 
-        M[i].a = // VEC2(0, 0);
+        M[i].a =// VEC2(0, 0);
             FIn +
             FVc * beta +
             FNo;
     }
-    CELL **B = findBorderCellsByFOV(M, 400, 2);
+    CELL **B = findBorderCellsByFOV(M, 400, PI / 2);
     for (int i = 0; i < len(B); i++)
     {
-        // for (int j = 0; j < len(B); j++){
-        //     if (*(B+i) != *(B+j)){
-        //         (*(B+i))->a += getGravityForce(*(B+i), *(B+j));
-        //     }
-        // }
-        VEC2 FAc; // F bodiesactin
-        FAc = getActinForce(*(B + i), B);
-        (*(B + i))->a += FAc;
 
+        //attract the closest two cells
+        // VEC2 FAc; // F bodiesactin
+        // FAc = getActinForce(*(B + i), B);
+        // (*(B + i))->a += FAc;
+        
+        //attract within a neighborhood, on the boundary
+        CELL **D = getNeighbors(B, *(B + i), 300);
+        for (int j = 0; j < len(D); j++)
+            (*(B + i))->a += testAttractiveForce(*(B + i), *(D + j));
+        
+        //add noise to boundarycells, due to ALL neighboring cells
         // CELL **D = getNeighbors(M, *(B + i), rt);
         // (*(B + i))->a += getNoiseForce(*(*(B + i)), D);
     }
@@ -279,14 +300,15 @@ int main(int argc, char *argv[])
     std::fstream pointinshape;
     pointinshape.open("intermediateResults/pointsInPolygon.csv", std::ios_base::in);
 
-    // CELL M[N];
-    CELL *M = (CELL *)malloc(sizeof(CELL) * N);
-    double x, y;
-    for (int i = 0; i < N; i++)
-    {
-        pointinshape >> x >> y;
-        M[i] = CELL(x, y);
-    }
+    CELL M[N];
+    // CELL *M = (CELL *)malloc(sizeof(CELL) * N);
+    // double x, y;
+    // for (int i = 0; i < N; i++)
+    // {
+    //     pointinshape >> x >> y;
+    // M[i] = CELL(x, y);
+    // M[i] = CELL();
+    // }
 
     std::ofstream posfile;
     posfile.open("intermediateResults/positionData.csv");
