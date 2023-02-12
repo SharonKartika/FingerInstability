@@ -183,22 +183,22 @@ VEC2 testAttractiveForce(CELL *A, CELL *B)
     double r = dp.mag();
     VEC2 unit = dp.unit();
 
-    //Force 1
-    // double k = 100;
-    // VEC2 F;
-    // double rcutoff = 300.0;
-    // if (r > rcutoff)
-    //     return VEC2(0, 0);
-    // else
-    //     return unit * r * k;
-    
-    //Force 2
-    // double mag = (r > rcutoff) ? 0.0 : -(r - rcutoff);
-    // F = unit * mag * k;
-    // return F;
+    // Force 1
+    //  double k = 100;
+    //  VEC2 F;
+    //  double rcutoff = 300.0;
+    //  if (r > rcutoff)
+    //      return VEC2(0, 0);
+    //  else
+    //      return unit * r * k;
 
-    //Force 3
-    return unit * -(1/pow(r,3)-10)*100;
+    // Force 2
+    //  double mag = (r > rcutoff) ? 0.0 : -(r - rcutoff);
+    //  F = unit * mag * k;
+    //  return F;
+
+    // Force 3
+    return unit * -(1 / pow(r, 3) - 10) * 100;
 }
 
 // interaction force between boundary cells
@@ -226,8 +226,6 @@ VEC2 getActinForce(CELL *T, CELL *A, CELL *B)
 //         << B->p.y << ",";
 // }
 
-
-
 VEC2 getActinForce(CELL *T, CELL **B)
 {
     CELL **KN = kClosest(T, B, 2);
@@ -236,48 +234,77 @@ VEC2 getActinForce(CELL *T, CELL **B)
     return FAc;
 }
 
+VEC2 getLeaderForce(CELL *L, CELL **NB)
+{
+    VEC2 CIL;
+    int nc = len(NB);
+    for (int i = 0; i < nc; i++)
+    {
+        CIL += (L->p - NB[i]->p);
+    }
+    if (nc > 0)
+        CIL = CIL.unit();
+    return CIL * 100;
+}
+
 /*Loops through every cell and again through every cell  */
 void looploop(CELL M[],
               std::ofstream &posfile,
-              std::ofstream &boundposfile)
+              std::ofstream &boundposfile,
+              CELL **L)
 {
+    // forces on all cells
     for (int i = 0; i < N; i++)
     {
-        CELL **B = getNeighbors(M, &M[i], rt);
-        VEC2 FIn;
-        VEC2 FVc;
-        VEC2 FNo;
+        // CELL **B = getNeighbors(M, &M[i], rt);
+        // VEC2 FIn;
+        // VEC2 FVc;
+        // VEC2 FNo;
 
-        FIn = getInteractionForce(M[i], B);
-        FVc = getVicsekForce(M[i], B);
-        FNo = getNoiseForce(M[i], B);
+        // FIn = getInteractionForce(M[i], B);
+        // FVc = getVicsekForce(M[i], B);
+        // FNo = getNoiseForce(M[i], B);
 
-        M[i].a =// VEC2(0, 0);
-            FIn +
-            FVc * beta +
-            FNo;
+        M[i].a = VEC2(0, 0);
+        // M[i].a =
+        //     FIn +
+        //     FVc * beta +
+        //     FNo;
     }
+
+    // forces on boundary cells
     CELL **B = findBorderCellsByFOV(M, 400, PI / 2);
     for (int i = 0; i < len(B); i++)
     {
 
-        //attract the closest two cells
-        // VEC2 FAc; // F bodiesactin
-        // FAc = getActinForce(*(B + i), B);
-        // (*(B + i))->a += FAc;
-        
-        //attract within a neighborhood, on the boundary
-        CELL **D = getNeighbors(B, *(B + i), 300);
-        for (int j = 0; j < len(D); j++)
-            (*(B + i))->a += testAttractiveForce(*(B + i), *(D + j));
-        
-        //add noise to boundarycells, due to ALL neighboring cells
-        // CELL **D = getNeighbors(M, *(B + i), rt);
-        // (*(B + i))->a += getNoiseForce(*(*(B + i)), D);
+        // attract the closest two cells
+        //  VEC2 FAc; // F bodiesactin
+        //  FAc = getActinForce(*(B + i), B);
+        //  (*(B + i))->a += FAc;
+
+        // attract within a neighborhood, on the boundary
+        //  CELL **D = getNeighbors(B, *(B + i), 300);
+        //  for (int j = 0; j < len(D); j++)
+        //  (*(B + i))->a += testAttractiveForce(*(B + i), *(D + j));
+
+        // add noise to boundarycells, due to ALL neighboring cells
+        //  CELL **D = getNeighbors(M, *(B + i), rt);
+        //  (*(B + i))->a += getNoiseForce(*(*(B + i)), D);
     }
+
+    // leader cell effects
+    for (int i = 0; i < len(L); i++)
+    {
+        CELL **NB = getNeighbors(M, L[i], 400);
+        std::cout << len(NB) << " ";
+        VEC2 FLe = getLeaderForce(L[i], NB); // additional force on leader
+        L[i]->a += FLe;
+    }
+
     lbc << std::endl;
     writecoordinates(M, posfile);
-    writecoordinates(B, boundposfile);
+    // writecoordinates(B, boundposfile);
+    writecoordinates(L, boundposfile);
     // boundposfile.close();
     // exit(1);
     for (int i = 0; i < N; i++)
@@ -316,9 +343,15 @@ int main(int argc, char *argv[])
     std::ofstream boundposfile;
     boundposfile.open("intermediateResults/boundaryData.csv");
 
+    // find boundary cells
+    CELL **B = findBorderCellsByFOV(M, 400, PI / 2);
+    // persistent (for now) leader cell list
+    CELL **L = getCellPointerArray(N);
+    L[0] = B[0];
+
     for (int t = 0; t < nt; t++)
     {
-        looploop(M, posfile, boundposfile);
+        looploop(M, posfile, boundposfile, L);
     }
     lbc.close();
     std::cout << "simulation complete\n";
