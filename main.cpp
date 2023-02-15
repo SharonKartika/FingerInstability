@@ -244,7 +244,21 @@ VEC2 getLeaderForce(CELL *L, CELL **NB)
     }
     if (nc > 0)
         CIL = CIL.unit();
-    return CIL * 100;
+    return CIL * 3e3;
+}
+
+// force on leader due to follower
+VEC2 getFollowerForce(CELL *F, CELL *L, VEC2 FLe)
+{
+    VEC2 FFl, dp = (F->p - L->p);
+    double D = 1,
+           rlc = 100,
+           mmax = FLe.mag(),
+           r = dp.mag();
+    double fmag = (exp(-D * r / rlc) - exp(-D)) /
+                  (1 - exp(-D));
+    fmag *= mmax;
+    return dp.unit() * fmag;
 }
 
 /*Loops through every cell and again through every cell  */
@@ -256,55 +270,58 @@ void looploop(CELL M[],
     // forces on all cells
     for (int i = 0; i < N; i++)
     {
-        // CELL **B = getNeighbors(M, &M[i], rt);
-        // VEC2 FIn;
-        // VEC2 FVc;
-        // VEC2 FNo;
+        CELL **B = getNeighbors(M, &M[i], rt);
+        VEC2 FIn;
+        VEC2 FVc;
+        VEC2 FNo;
 
-        // FIn = getInteractionForce(M[i], B);
-        // FVc = getVicsekForce(M[i], B);
-        // FNo = getNoiseForce(M[i], B);
+        FIn = getInteractionForce(M[i], B);
+        FVc = getVicsekForce(M[i], B);
+        FNo = getNoiseForce(M[i], B);
 
         M[i].a = VEC2(0, 0);
-        // M[i].a =
-        //     FIn +
-        //     FVc * beta +
-        //     FNo;
+        M[i].a =
+            FIn +
+            FVc * beta +
+            FNo;
     }
 
     // forces on boundary cells
     CELL **B = findBorderCellsByFOV(M, 400, PI / 2);
     for (int i = 0; i < len(B); i++)
     {
-
+        CELL **D;
         // attract the closest two cells
-        //  VEC2 FAc; // F bodiesactin
-        //  FAc = getActinForce(*(B + i), B);
-        //  (*(B + i))->a += FAc;
+         VEC2 FAc; // F bodiesactin
+         FAc = getActinForce(*(B + i), B);
+         (*(B + i))->a += FAc;
 
         // attract within a neighborhood, on the boundary
-        //  CELL **D = getNeighbors(B, *(B + i), 300);
-        //  for (int j = 0; j < len(D); j++)
-        //  (*(B + i))->a += testAttractiveForce(*(B + i), *(D + j));
+        // D = getNeighbors(B, *(B + i), 200);
+        // for (int j = 0; j < len(D); j++)
+            // (*(B + i))->a += testAttractiveForce(*(B + i), *(D + j));
 
         // add noise to boundarycells, due to ALL neighboring cells
-        //  CELL **D = getNeighbors(M, *(B + i), rt);
-        //  (*(B + i))->a += getNoiseForce(*(*(B + i)), D);
+        D = getNeighbors(M, *(B + i), rt);
+        (*(B + i))->a += getNoiseForce(*(*(B + i)), D);
     }
 
     // leader cell effects
     for (int i = 0; i < len(L); i++)
     {
         CELL **NB = getNeighbors(M, L[i], 400);
-        std::cout << len(NB) << " ";
         VEC2 FLe = getLeaderForce(L[i], NB); // additional force on leader
         L[i]->a += FLe;
+        for (int j = 0; j < len(NB); j++)
+        {
+            NB[j]->a += getFollowerForce(NB[j], L[i], FLe);
+        }
     }
 
     lbc << std::endl;
     writecoordinates(M, posfile);
-    // writecoordinates(B, boundposfile);
-    writecoordinates(L, boundposfile);
+    writecoordinates(B, boundposfile);
+    // writecoordinates(L, boundposfile);
     // boundposfile.close();
     // exit(1);
     for (int i = 0; i < N; i++)
@@ -347,8 +364,10 @@ int main(int argc, char *argv[])
     CELL **B = findBorderCellsByFOV(M, 400, PI / 2);
     // persistent (for now) leader cell list
     CELL **L = getCellPointerArray(N);
+    // int leaderid[5] = {1,20,35,41,56};
+    // for (int i = 0; i < 5; i++)
+    // L[i] = B[leaderid[i]];
     L[0] = B[0];
-
     for (int t = 0; t < nt; t++)
     {
         looploop(M, posfile, boundposfile, L);
