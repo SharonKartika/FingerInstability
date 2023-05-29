@@ -292,9 +292,9 @@ void looploop(CELL M[],
     {
         CELL **D;
         // attract the closest two cells
-         VEC2 FAc; // F bodiesactin
-         FAc = getActinForce(*(B + i), B);
-         (*(B + i))->a += FAc;
+        //  VEC2 FAc; // F bodiesactin
+        //  FAc = getActinForce(*(B + i), B);
+        //  (*(B + i))->a += FAc;
 
         // attract within a neighborhood, on the boundary
         // D = getNeighbors(B, *(B + i), 200);
@@ -302,20 +302,20 @@ void looploop(CELL M[],
             // (*(B + i))->a += testAttractiveForce(*(B + i), *(D + j));
 
         // add noise to boundarycells, due to ALL neighboring cells
-        D = getNeighbors(M, *(B + i), rt);
-        (*(B + i))->a += getNoiseForce(*(*(B + i)), D);
+        // D = getNeighbors(M, *(B + i), rt);
+        // (*(B + i))->a += getNoiseForce(*(*(B + i)), D);
     }
 
     // leader cell effects
     for (int i = 0; i < len(L); i++)
     {
-        CELL **NB = getNeighbors(M, L[i], 400);
-        VEC2 FLe = getLeaderForce(L[i], NB); // additional force on leader
-        L[i]->a += FLe;
-        for (int j = 0; j < len(NB); j++)
-        {
-            NB[j]->a += getFollowerForce(NB[j], L[i], FLe);
-        }
+        // CELL **NB = getNeighbors(M, L[i], 400);
+        // VEC2 FLe = getLeaderForce(L[i], NB); // additional force on leader
+        // L[i]->a += FLe;
+        // for (int j = 0; j < len(NB); j++)
+        // {
+        //     NB[j]->a += getFollowerForce(NB[j], L[i], FLe);
+        // }
     }
 
     lbc << std::endl;

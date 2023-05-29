@@ -25,13 +25,47 @@ double fInteractionMag(double r)
     }
 }
 
+// Nirgov
+//  VEC2 getInteractionForce(CELL A, CELL B)
+//  {
+//      VEC2 dp = B.p - A.p;
+//      double r = dp.mag();
+//      double f = fInteractionMag(r);
+//      VEC2 F(f * (dp.x / r), f * (dp.y / r));
+//      return F;
+//  }
+
+// spring like
+// VEC2 getInteractionForce(CELL A, CELL B)
+// {
+//     // VEC2 dp = B.p - A.p;
+//     VEC2 dp = A.p - B.p;
+//     VEC2 r_hat = dp.unit();
+//     double r = dp.mag();
+//     // double f_mag = 1 / pow(r - 5, 2) + 0.15 * r - 10.0;
+//     double f_mag = 100/(r*r);
+//     return r_hat * f_mag;
+// }
+
+// Szabo
 VEC2 getInteractionForce(CELL A, CELL B)
 {
     VEC2 dp = B.p - A.p;
     double r = dp.mag();
-    double f = fInteractionMag(r);
-    VEC2 F(f * (dp.x / r), f * (dp.y / r));
-    return F;
+    VEC2 unit = dp.unit();
+    
+    double Fadh = -100.0;
+    double Frep = 100.0;
+
+    double Req = 30.0;
+    double R0 = 70.0;
+    double Fmag = 0.0;
+    if (r < Req)
+        Fmag = Frep * (Req - r) / Req;
+    else
+        Fmag = Fadh * (r - Req) / (R0 - Req);
+
+    return unit * (-Fmag);
 }
 
 VEC2 getInteractionForce(CELL A, CELL **B)

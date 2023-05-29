@@ -129,5 +129,12 @@ function plotFirstFrame(W=1200, H=1200)
         xlims=[-W, W], ylims=[-H, H])
 end
 
+function compilerun(N=100, t=100)
+    t1 = @elapsed run(`g++ main.cpp -o main`)
+    t2 = @elapsed run(`./main $(N) $(t) 70`)
+    println("""\nCompilation time: $(t1) s
+Simulation time : $(t2) s""") 
+    t1, t2
+end
 
 
